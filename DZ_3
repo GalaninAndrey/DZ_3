@@ -1,0 +1,177 @@
+using System;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using System.Xml.Linq;
+
+namespace DZ2
+{
+    public class MyArray
+    {
+        public int[] mass { get; set; }
+
+        public MyArray(int n)
+        {
+            mass = new int[n];
+        }
+        public void InputData(int[] values)
+        {
+            if (values.Length > mass.Length)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+            for (int i = 0; i < values.Length; i++)
+            {
+
+                mass[i] = values[i];
+            }
+        }
+        public void InputDataRandom()
+        {
+            Random random = new Random();
+            for (int i = 0; i < mass.Length; i++)
+            {
+                mass[i] = random.Next(100);
+            }
+        }
+        public void Print(in int first, in int second)
+        {
+           for (int i = first ; i <= second; i++)
+           {
+                Console.WriteLine(mass[i] + " ");
+           }
+        }
+        public void FindValue(in int value, out List<int> index)
+        {
+            index = new List<int>();
+            for (int i = 0; i < mass.Length; i++)
+            {
+                if (mass[i] == value)
+                {
+                    index.Add(i);
+                }
+            }
+        }
+        public void Resize(in int newSize)
+        {
+            if (newSize < 0) { throw new InvalidOperationException(); }
+            int[] temp = new int[newSize];
+            for (int i = 0; i < newSize; i++)
+            {
+                temp[i] = mass[i];
+            }
+            mass = temp;
+        }
+        public void DelValue(in int value) // проверить
+        {
+            FindValue(value, out List<int> index); 
+            for (int i = index.Count - 1; i > -1; i--)
+            {
+                int ind = index[i];
+                for (int j = ind; j < mass.Length - 1; j++)
+                {
+                    mass[j] = mass[j + 1];
+                }
+            }
+            Resize(mass.Length - index.Count);
+        }
+        public void FindMax(out int max)
+        {
+            max = int.MinValue;
+
+            for (int i = 0; i < mass.Length; i++)
+            {
+                if (mass[i] > max)
+                {
+                    max = mass[i];
+                }
+            }
+        }
+        public void Add(in MyArray array2)
+        {
+            for (int i = 0; i < mass.Length; i++)
+            {
+                mass[i] += array2.mass[i]; 
+            }
+        }
+        public void Sort()
+        {
+            for (int i = 0; i < mass.Length - 1; i++)
+            {
+                for (int j = 0; j < mass.Length - i - 1; j++)
+                {
+                    if (mass[j] > mass[j + 1])
+                    {
+                        int temp = mass[j];
+                        mass[j] = mass[j + 1];
+                        mass[j + 1] = temp;
+                    }
+                }
+            }
+        }
+    }
+    class Program
+    {
+        static void Main()
+        {
+            Console.WriteLine("Введите размерность массива:");
+            int N = int.Parse(Console.ReadLine());
+            MyArray myArray = new MyArray(N);
+            string Change;
+            do
+            {
+                Change = Console.ReadLine();
+                switch (Change)
+                {
+                    case "InputData":
+                        Console.WriteLine("Введите значения массива:");
+                        int[] input = Console.ReadLine().Split(' ').Select(it => Convert.ToInt32(it)).ToArray();
+                        myArray.InputData(input);
+                        break;
+                    case "InputDataRandom":
+                        myArray.InputDataRandom();
+                        break;
+                    case "Print":
+                        Console.WriteLine("Введите нижнюю границу диапазона:");
+                        int first   = int.Parse(Console.ReadLine());
+                        Console.WriteLine("Введите верхнюю границу диапазона:");
+                        int second  = int.Parse(Console.ReadLine());
+                        myArray.Print(in first, in second);
+                        break;
+                    case "FindValue":
+                        Console.WriteLine("Введите значение:");
+                        int value   = int.Parse(Console.ReadLine());
+                        myArray.FindValue(in value, out List<int> index); 
+                        for (int i = 0; i < index.Count; i++)
+                        {
+                            Console.WriteLine(index[i].ToString());
+                        }
+                        break;
+                    case "DelValue":
+                        Console.WriteLine("Введите значение:");
+                        int valuedel = int.Parse(Console.ReadLine());
+                        myArray.DelValue(in valuedel);
+                        break;
+                    case "FindMax":
+                        myArray.FindMax(out int max);
+                        Console.WriteLine(max);
+                        break;
+                    case "Add":
+                        MyArray array2 = new MyArray(N);
+                        array2.InputDataRandom();
+                        myArray.Add(in array2);
+                        myArray.Print(0, N-1);
+                        break;
+                    case "Sort":
+                        myArray.Sort();
+                        break;
+                    case "exit":
+                        Console.WriteLine("bye");
+                        break;
+                    default:
+                        Console.WriteLine("Неверно введена команда");
+                        break;
+                }
+            } while (Change != "exit");
+        }
+    }
+}
